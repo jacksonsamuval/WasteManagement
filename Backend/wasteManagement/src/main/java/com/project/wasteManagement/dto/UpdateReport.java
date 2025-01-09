@@ -1,42 +1,17 @@
-package com.project.wasteManagement.model;
+package com.project.wasteManagement.dto;
 
-import jakarta.persistence.*;
-import org.springframework.boot.context.properties.bind.DefaultValue;
+import com.project.wasteManagement.model.Status;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 
-@Entity
-public class Report {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+public class UpdateReport {
     private String description;
     private String imageUrl;
     private Double latitude;
     private Double longitude;
 
     @Enumerated(EnumType.STRING)
-    private Status status = Status.PENDING;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    public Report(){}
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    private Status status;
 
     public String getDescription() {
         return description;
@@ -70,11 +45,11 @@ public class Report {
         this.longitude = longitude;
     }
 
-    public User getUser() {
-        return user;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }
