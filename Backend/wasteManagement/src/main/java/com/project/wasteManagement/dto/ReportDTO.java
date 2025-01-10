@@ -1,26 +1,20 @@
 package com.project.wasteManagement.dto;
 
+import jakarta.persistence.Lob;
+
 public class ReportDTO {
     private String description;
-    private String imageUrl;
     private Double latitude;
     private Double longitude;
 
     // Getters and setters
+
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
     }
 
     public Double getLatitude() {

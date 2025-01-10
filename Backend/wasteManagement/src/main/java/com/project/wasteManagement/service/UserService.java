@@ -1,8 +1,11 @@
 package com.project.wasteManagement.service;
 
+import com.project.wasteManagement.dto.AuthResponseDto;
 import com.project.wasteManagement.dto.LoginDto;
 import com.project.wasteManagement.jwt.JwtService;
+import com.project.wasteManagement.model.ProfilePicture;
 import com.project.wasteManagement.model.User;
+import com.project.wasteManagement.repo.ProfilePictureRepo;
 import com.project.wasteManagement.repo.UserRepo;
 import com.project.wasteManagement.security.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Date;
 
 @Service
 public class UserService {
@@ -22,6 +29,9 @@ public class UserService {
 
     @Autowired
     private JwtService jwtService;
+
+    @Autowired
+    private ProfilePictureRepo profilePictureRepo;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -58,9 +68,10 @@ public class UserService {
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
 
+        AuthResponseDto authResponseDto = new AuthResponseDto(jwtService.generateToken(loginDto.getUsername()),loginDto.getUsername());
         if (authentication.isAuthenticated())
         {
-            return new ResponseEntity<>(jwtService.generateToken(loginDto.getUsername()),HttpStatus.OK);
+            return new ResponseEntity<>(authResponseDto,HttpStatus.OK);
         }else {
             return new ResponseEntity<>("Failed",HttpStatus.FORBIDDEN);
         }
@@ -69,5 +80,16 @@ public class UserService {
     public User getCurrentUser() {
         UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return userPrincipal.getUser();
+    }
+
+    public ResponseEntity<?> uploadPicture(MultipartFile file) throws IOException {
+        User user = getCurrentUser();
+        ProfilePicture profilePicture = new ProfilePicture();
+        profilePicture.setUser(user);
+        profilePicture.setImage(file.getBytes());
+        profilePicture.setCreatedAt(new Date());
+        profilePicture.setImageType(file.getContentType());
+        profilePictureRepo.save(profilePicture);
+        return new ResponseEntity<>(profilePicture,HttpStatus.OK);
     }
 }

@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";  // Importing the left arrow icon from react-icons
+import { FaArrowLeft, FaPlus } from "react-icons/fa";  // Importing the plus icon
+import axios from 'axios'; // To make HTTP requests
 import "./Navbar.css";
+
+// You can replace this with your own default image
+const defaultImageUrl = "https://via.placeholder.com/150"; // Dummy profile image URL
 
 const Navbar = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -37,6 +41,38 @@ const Navbar = () => {
     navigate(-1); // Navigate back to the previous page
   };
 
+  const handleProfilePictureClick = () => {
+    document.getElementById("profile-pic-input").click(); // Trigger file input click
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0]; // Get the selected file
+    if (file) {
+      // Create a FormData object to send the image file
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        // Send a POST request to upload the image to the server
+        const response = await axios.post('http://localhost:8080/user/uploadProfilePicture', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${localStorage.getItem("token")}`, // Assuming you have JWT token stored
+          },
+        });
+
+        // After successful upload, save the URL to localStorage and update the state
+        const imageUrl = response.data.imageUrl; // Assuming the response contains the image URL
+        localStorage.setItem("imageUrl", imageUrl); // Store the image URL in localStorage
+        setUser({ ...user, imageUrl }); // Update the user state with the new image URL
+
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        alert("Failed to upload image. Please try again.");
+      }
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -57,7 +93,19 @@ const Navbar = () => {
           {user ? (
             // Display user's name and image if logged in
             <li className="user-info">
-              <img src={user.imageUrl} alt={user.username} className="user-avatar" />
+              <div className="profile-container" onClick={handleProfilePictureClick}>
+                <img
+                  src={user.imageUrl || defaultImageUrl} // Use the default image if no profile image exists
+                  alt={user.username || "Default Avatar"}
+                  className="user-avatar"
+                />
+                {user.imageUrl ? null : (
+                  <div className="add-avatar-text">
+                    <FaPlus size={24} color="#005bb5" /> {/* Plus icon to add profile picture */}
+                    Add Profile Picture
+                  </div>
+                )}
+              </div>
               <span>{user.username}</span>
             </li>
           ) : (
@@ -89,6 +137,15 @@ const Navbar = () => {
           <div className="bar"></div>
         </div>
       </div>
+
+      {/* Hidden file input */}
+      <input
+        id="profile-pic-input"
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleFileChange}
+      />
     </nav>
   );
 };

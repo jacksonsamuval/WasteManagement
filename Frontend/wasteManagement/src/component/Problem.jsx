@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";  // Importing useNavigate
 
 // Enhanced styling with clean lines, rounded edges, and soft gradients
 const styles = {
@@ -82,6 +83,7 @@ const Dashboard = () => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const token = localStorage.getItem("token");
+  const navigate = useNavigate();  // Initialize navigate
 
   // Get the user's current location (latitude and longitude)
   useEffect(() => {
@@ -134,6 +136,9 @@ const Dashboard = () => {
         setLongitude("");
         setDescription("");
         setImage(null);
+
+        // Redirect to the dashboard
+        navigate("/dashboard"); // Replace '/dashboard' with your actual route for the dashboard page
       } else {
         const error = await response.json();
         setErrorMessage(`Failed to report the problem: ${error.message}`);

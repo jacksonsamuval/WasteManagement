@@ -5,6 +5,7 @@ import LoginForm from "./component/LoginForm";
 import RegisterForm from "./component/RegisterForm";
 import Dashboard from "./component/Dashboard";
 import Problem from "./component/Problem"
+import ViewProblem from "./component/ViewProblem";
 
 const App = () => {
   const handleLoginSuccess = () => {
@@ -35,6 +36,10 @@ const App = () => {
           <Route
             path="/problem"
             element={<Problem/>}
+          />
+          <Route
+            path="/viewProblem"
+            element={<ViewProblem/>}
           />
         </Routes>
       </div>
