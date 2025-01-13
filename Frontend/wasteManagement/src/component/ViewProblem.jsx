@@ -3,8 +3,9 @@ import { FaMapMarkedAlt, FaEye, FaTrash } from 'react-icons/fa'; // Font Awesome
 
 const ViewProblem = () => {
   const [problemData, setProblemData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [showImage, setShowImage] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -20,6 +21,7 @@ const ViewProblem = () => {
         if (response.ok) {
           const data = await response.json();
           setProblemData(data);
+          setFilteredData(data); // Initialize filteredData with all problem data
         } else {
           const error = await response.json();
           setErrorMessage(`Error: ${error.message}`);
@@ -32,6 +34,18 @@ const ViewProblem = () => {
 
     fetchProblemReports();
   }, [token]);
+
+  const handleSearch = (event) => {
+    setSearchQuery(event.target.value);
+
+    // Filter data based on search query (description, user name, or email)
+    const filtered = problemData.filter((problem) =>
+      problem.description.toLowerCase().includes(event.target.value.toLowerCase()) ||
+      problem.user.name.toLowerCase().includes(event.target.value.toLowerCase()) ||
+      problem.user.email.toLowerCase().includes(event.target.value.toLowerCase())
+    );
+    setFilteredData(filtered);
+  };
 
   const handleViewLocation = (latitude, longitude) => {
     if (latitude && longitude) {
@@ -77,6 +91,7 @@ const ViewProblem = () => {
 
       if (response.ok) {
         setProblemData(problemData.filter(problem => problem.id !== problemId));
+        setFilteredData(filteredData.filter(problem => problem.id !== problemId));
         alert("Problem report deleted successfully.");
       } else {
         const error = await response.json();
@@ -98,9 +113,19 @@ const ViewProblem = () => {
 
         {errorMessage && <p style={styles.errorMessage}>{errorMessage}</p>}
 
-        {problemData.length > 0 ? (
+        <div style={styles.searchContainer}>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={handleSearch}
+            placeholder="Search by description, name, or email"
+            style={styles.searchInput}
+          />
+        </div>
+
+        {filteredData.length > 0 ? (
           <div style={styles.problemContent}>
-            {problemData.map((problem, index) => (
+            {filteredData.map((problem, index) => (
               <div key={index} style={styles.problemCard}>
                 <div style={styles.cardHeader}>
                   <h3 style={styles.cardTitle}>Problem Reported</h3>
@@ -135,22 +160,11 @@ const ViewProblem = () => {
                     Delete Report
                   </button>
                 </div>
-
-                {showImage && problem.image && (
-                  <div style={styles.imageContainer}>
-                    <h3 style={styles.imageTitle}>Problem Image:</h3>
-                    <img
-                      src={`data:image/jpeg;base64,${problem.image}`}
-                      alt="Problem"
-                      style={styles.image}
-                    />
-                  </div>
-                )}
               </div>
             ))}
           </div>
         ) : (
-          <p style={styles.loadingMessage}>Loading...</p>
+          <p style={styles.loadingMessage}>Data not found.</p>
         )}
       </div>
     </div>
@@ -167,6 +181,22 @@ const styles = {
     minHeight: "100vh",
     fontFamily: "'Roboto', sans-serif",
     padding: "30px",
+  },
+  searchContainer: {
+    marginBottom: "20px",
+    display: "flex",
+    justifyContent: "center",
+  },
+  searchInput: {
+    width: "80%",
+    padding: "10px",
+    fontSize: "16px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+  },
+  icon: {
+    fontSize: "20px",
+    marginRight: "10px",
   },
   problemDetails: {
     backgroundColor: "#fff",
@@ -306,10 +336,6 @@ const styles = {
     height: "auto",
     borderRadius: "8px",
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-  },
-  icon: {
-    fontSize: "20px",
-    marginRight: "10px",
   },
   loadingMessage: {
     fontSize: "16px",

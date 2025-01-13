@@ -3,14 +3,15 @@ import { FaMapMarkedAlt, FaEye, FaTrash } from 'react-icons/fa'; // Font Awesome
 
 const CompletedProblem = () => {
   const [problemData, setProblemData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [showImage, setShowImage] = useState(false);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchProblemReports = async () => {
       try {
-        const status = "COMPLETED"
+        const status = "COMPLETED";
         const response = await fetch(`http://localhost:8080/report/getCompleted/${status}`, {
           method: "GET",
           headers: {
@@ -21,6 +22,7 @@ const CompletedProblem = () => {
         if (response.ok) {
           const data = await response.json();
           setProblemData(data);
+          setFilteredData(data); // Initially, show all the fetched data
         } else {
           const error = await response.json();
           setErrorMessage(`Error: ${error.message}`);
@@ -33,6 +35,20 @@ const CompletedProblem = () => {
 
     fetchProblemReports();
   }, [token]);
+
+  // Handle search query input and filter data
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+
+    // Filter problemData based on description, user name, or email
+    const filtered = problemData.filter((problem) =>
+      problem.description.toLowerCase().includes(query.toLowerCase()) ||
+      problem.user.name.toLowerCase().includes(query.toLowerCase()) ||
+      problem.user.email.toLowerCase().includes(query.toLowerCase())
+    );
+
+    setFilteredData(filtered);
+  };
 
   const handleViewLocation = (latitude, longitude) => {
     if (latitude && longitude) {
@@ -77,9 +93,20 @@ const CompletedProblem = () => {
 
         {errorMessage && <p style={styles.errorMessage}>{errorMessage}</p>}
 
-        {problemData.length > 0 ? (
+        {/* Search Bar */}
+        <div style={styles.searchBar}>
+          <input
+            type="text"
+            placeholder="Search by description, user name, or email"
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            style={styles.searchInput}
+          />
+        </div>
+
+        {filteredData.length > 0 ? (
           <div style={styles.problemContent}>
-            {problemData.map((problem, index) => (
+            {filteredData.map((problem, index) => (
               <div key={index} style={styles.problemCard}>
                 <div style={styles.cardHeader}>
                   <h3 style={styles.cardTitle}>Problem Reported</h3>
@@ -110,17 +137,6 @@ const CompletedProblem = () => {
                     View Location
                   </button>
                 </div>
-
-                {showImage && problem.image && (
-                  <div style={styles.imageContainer}>
-                    <h3 style={styles.imageTitle}>Problem Image:</h3>
-                    <img
-                      src={`data:image/jpeg;base64,${problem.image}`}
-                      alt="Problem"
-                      style={styles.image}
-                    />
-                  </div>
-                )}
               </div>
             ))}
           </div>
@@ -176,6 +192,17 @@ const styles = {
     fontSize: "16px",
     fontWeight: "600",
     marginBottom: "20px",
+  },
+  searchBar: {
+    marginBottom: "20px",
+    textAlign: "center",
+  },
+  searchInput: {
+    width: "80%",
+    padding: "10px",
+    fontSize: "16px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
   },
   problemContent: {
     display: "flex",
@@ -251,30 +278,13 @@ const styles = {
     alignItems: "center",
     width: "200px",
   },
-  imageContainer: {
-    marginTop: "20px",
-    textAlign: "center",
-    maxWidth: "350px",
-  },
-  imageTitle: {
-    fontSize: "18px",
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: "10px",
-  },
-  image: {
-    width: "100%",
-    height: "auto",
-    borderRadius: "8px",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+  loadingMessage: {
+    fontSize: "16px",
+    color: "#888",
   },
   icon: {
     fontSize: "20px",
     marginRight: "10px",
-  },
-  loadingMessage: {
-    fontSize: "16px",
-    color: "#888",
   },
 };
 

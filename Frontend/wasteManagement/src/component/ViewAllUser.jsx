@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { FaMapMarkedAlt, FaEye } from 'react-icons/fa';
 
 const ViewAllUser = () => {
-  const [userData, setUserData] = useState([]); // Renaming problemData to userData
+  const [userData, setUserData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const token = localStorage.getItem("token");
 
@@ -18,13 +19,14 @@ const ViewAllUser = () => {
 
         if (response.ok) {
           const data = await response.json();
-          setUserData(data); // Store the response data into userData
+          setUserData(data); // Store the data
+          setFilteredData(data); // Initially display all users
         } else {
           const error = await response.json();
           setErrorMessage(`Error: ${error.message}`);
         }
       } catch (error) {
-        setErrorMessage("Failed to fetch the report. Please try again.");
+        setErrorMessage("Failed to fetch the data. Please try again.");
         console.error("Error fetching user data:", error);
       }
     };
@@ -32,6 +34,19 @@ const ViewAllUser = () => {
     fetchUserData();
   }, [token]);
 
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+
+    // Filter userData based on name, mobileNo, email, or role
+    const filtered = userData.filter((user) =>
+      (user.name?.toLowerCase() || "").includes(query.toLowerCase()) ||
+      (user.mobileNo?.toLowerCase() || "").includes(query.toLowerCase()) ||
+      (user.email?.toLowerCase() || "").includes(query.toLowerCase()) ||
+      (user.role?.toLowerCase() || "").includes(query.toLowerCase())
+    );
+
+    setFilteredData(filtered);
+  };
 
   return (
     <div style={styles.container}>
@@ -41,11 +56,21 @@ const ViewAllUser = () => {
           <p style={styles.subHeader}>Details of all users registered in the system</p>
         </header>
 
+        <div style={styles.searchBar}>
+          <input
+            type="text"
+            placeholder="Search by description, user name, email or Role"
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            style={styles.searchInput}
+          /> 
+        </div> <br/>
+
         {errorMessage && <p style={styles.errorMessage}>{errorMessage}</p>}
 
-        {userData.length > 0 ? (
+        {filteredData.length > 0 ? (
           <div style={styles.problemContent}>
-            {userData.map((user, index) => (
+            {filteredData.map((user, index) => (
               <div key={index} style={styles.problemCard}>
                 <div style={styles.cardHeader}>
                   <h3 style={styles.cardTitle}>User: {user.name}</h3>
@@ -67,7 +92,9 @@ const ViewAllUser = () => {
             ))}
           </div>
         ) : (
-          <p style={styles.loadingMessage}>Loading...</p>
+          <p style={styles.loadingMessage}>
+            {searchQuery ? "No users match your search." : "Loading..."}
+          </p>
         )}
       </div>
     </div>
@@ -84,6 +111,17 @@ const styles = {
     minHeight: "100vh",
     fontFamily: "'Roboto', sans-serif",
     padding: "30px",
+  },
+  searchBar: {
+    marginBottom: "20px",
+    textAlign: "center",
+  },
+  searchInput: {
+    width: "80%",
+    padding: "10px",
+    fontSize: "16px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
   },
   problemDetails: {
     backgroundColor: "#fff",

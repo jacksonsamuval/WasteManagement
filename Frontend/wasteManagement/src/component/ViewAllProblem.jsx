@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { FaMapMarkedAlt, FaEye, FaTrash } from "react-icons/fa";
+import { FaMapMarkedAlt, FaEye, FaTrash } from 'react-icons/fa'; 
 
 const ViewAllProblem = () => {
   const [problemData, setProblemData] = useState([]);
+  const [filteredProblemData, setFilteredProblemData] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // New state for the search term
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -13,13 +15,14 @@ const ViewAllProblem = () => {
         const response = await fetch("http://localhost:8080/report/viewAll", {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
+            "Authorization": `Bearer ${token}`,
           },
         });
 
         if (response.ok) {
           const data = await response.json();
           setProblemData(data);
+          setFilteredProblemData(data); // Initially display all data
         } else {
           const error = await response.json();
           setErrorMessage(`Error: ${error.message}`);
@@ -32,6 +35,21 @@ const ViewAllProblem = () => {
 
     fetchProblemReports();
   }, [token]);
+
+  // Filter the problems based on the search term
+  useEffect(() => {
+    if (searchTerm) {
+      const filteredData = problemData.filter((problem) =>
+        problem.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        problem.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        problem.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        problem.user.mobileNo.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredProblemData(filteredData);
+    } else {
+      setFilteredProblemData(problemData); // If search term is empty, show all problems
+    }
+  }, [searchTerm, problemData]);
 
   const handleViewLocation = (latitude, longitude) => {
     if (latitude && longitude) {
@@ -71,7 +89,7 @@ const ViewAllProblem = () => {
       const response = await fetch(`http://localhost:8080/report/updateStatus/${id}/${newStatus}`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          "Authorization": `Bearer ${token}`,
         },
       });
 
@@ -98,14 +116,23 @@ const ViewAllProblem = () => {
         <header style={styles.headerContainer}>
           <h1 style={styles.header}>Problem Details</h1>
           <p style={styles.subHeader}>Check the status and details of your reported problems</p>
+          
+          {/* Search Bar */}
+          <input
+            type="text"
+            placeholder="Search by description, user name, email, or mobile"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={styles.searchInput}
+          />
         </header>
 
         {errorMessage && <p style={styles.errorMessage}>{errorMessage}</p>}
         {successMessage && <p style={styles.successMessage}>{successMessage}</p>}
 
-        {problemData && problemData.length > 0 ? (
+        {filteredProblemData.length > 0 ? (
           <div style={styles.problemContent}>
-            {problemData.map((problem, index) => (
+            {filteredProblemData.map((problem, index) => (
               <div key={index} style={styles.problemCard}>
                 <div style={styles.cardHeader}>
                   <h3 style={styles.cardTitle}>Problem Reported</h3>
@@ -114,27 +141,15 @@ const ViewAllProblem = () => {
 
                 <div style={styles.problemInfo}>
                   <div style={styles.problemColumn}>
-                    <p>
-                      <strong>Description:</strong> {problem.description}
-                    </p>
-                    <p>
-                      <strong>Reported By:</strong> {problem.user.name}
-                    </p>
-                    <p>
-                      <strong>Email:</strong> {problem.user.email}
-                    </p>
-                    <p>
-                      <strong>Mobile No:</strong> {problem.user.mobileNo}
-                    </p>
+                    <p><strong>Description:</strong> {problem.description}</p>
+                    <p><strong>Reported By:</strong> {problem.user.name}</p>
+                    <p><strong>Email:</strong> {problem.user.email}</p>
+                    <p><strong>Mobile No:</strong> {problem.user.mobileNo}</p>
                   </div>
 
                   <div style={styles.problemColumn}>
-                    <p>
-                      <strong>Location:</strong> Latitude: {problem.latitude}, Longitude: {problem.longitude}
-                    </p>
-                    <p>
-                      <strong>Created At:</strong> {new Date(problem.createdAt).toLocaleString()}
-                    </p>
+                    <p><strong>Location:</strong> Latitude: {problem.latitude}, Longitude: {problem.longitude}</p>
+                    <p><strong>Created At:</strong> {new Date(problem.createdAt).toLocaleString()}</p>
                   </div>
                 </div>
 
@@ -143,10 +158,7 @@ const ViewAllProblem = () => {
                     <FaEye style={styles.icon} />
                     View Image
                   </button>
-                  <button
-                    onClick={() => handleViewLocation(problem.latitude, problem.longitude)}
-                    style={styles.mapButton}
-                  >
+                  <button onClick={() => handleViewLocation(problem.latitude, problem.longitude)} style={styles.mapButton}>
                     <FaMapMarkedAlt style={styles.icon} />
                     View Location
                   </button>
@@ -158,9 +170,7 @@ const ViewAllProblem = () => {
                     style={styles.statusDropdown}
                     defaultValue=""
                   >
-                    <option value="" disabled>
-                      Select Status
-                    </option>
+                    <option value="" disabled>Select Status</option>
                     <option value="PENDING">PENDING</option>
                     <option value="PROGRESS">PROGRESS</option>
                     <option value="COMPLETED">COMPLETED</option>
@@ -176,7 +186,7 @@ const ViewAllProblem = () => {
             ))}
           </div>
         ) : (
-          <p style={styles.noReportsMessage}>No Reports Available</p>
+          <p style={styles.loadingMessage}>Loading...</p>
         )}
       </div>
     </div>
@@ -193,6 +203,37 @@ const styles = {
     minHeight: "100vh",
     fontFamily: "'Roboto', sans-serif",
     padding: "30px",
+  },
+  searchInput: {
+    padding: "10px",
+    width: "100%",
+    maxWidth: "500px",
+    fontSize: "16px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+    marginBottom: "20px",
+  },
+  updateStatusContainer: {
+    marginTop: "20px",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "10px",
+  },
+  statusDropdown: {
+    padding: "10px",
+    fontSize: "16px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+  },
+  updateButton: {
+    backgroundColor: "#ffc107",
+    color: "#fff",
+    padding: "10px 20px",
+    fontSize: "16px",
+    borderRadius: "8px",
+    border: "none",
+    cursor: "pointer",
   },
   problemDetails: {
     backgroundColor: "#fff",
@@ -227,19 +268,6 @@ const styles = {
     fontSize: "16px",
     fontWeight: "600",
     marginBottom: "20px",
-  },
-  successMessage: {
-    color: "#28a745",
-    fontSize: "16px",
-    fontWeight: "600",
-    marginBottom: "20px",
-  },
-  noReportsMessage: {
-    fontSize: "18px",
-    color: "#555",
-    textAlign: "center",
-    marginTop: "20px",
-    fontWeight: "600",
   },
   problemContent: {
     display: "flex",
@@ -295,6 +323,7 @@ const styles = {
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
+    transition: "background-color 0.3s ease, transform 0.2s ease",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -308,32 +337,37 @@ const styles = {
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
+    transition: "background-color 0.3s ease, transform 0.2s ease",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     width: "200px",
   },
-  updateStatusContainer: {
+
+  imageContainer: {
     marginTop: "20px",
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: "10px",
+    textAlign: "center",
+    maxWidth: "350px",
   },
-  statusDropdown: {
-    padding: "10px",
-    fontSize: "16px",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
+  imageTitle: {
+    fontSize: "18px",
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: "10px",
   },
-  updateButton: {
-    backgroundColor: "#ffc107",
-    color: "#fff",
-    padding: "10px 20px",
-    fontSize: "16px",
+  image: {
+    width: "100%",
+    height: "auto",
     borderRadius: "8px",
-    border: "none",
-    cursor: "pointer",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+  },
+  icon: {
+    fontSize: "20px",
+    marginRight: "10px",
+  },
+  loadingMessage: {
+    fontSize: "16px",
+    color: "#888",
   },
 };
 
