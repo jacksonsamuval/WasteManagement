@@ -36,7 +36,7 @@ const Dashboard = () => {
           </p>
           <div style={styles.buttonContainer}>
             <button onClick={handleRedirectToProblem} style={styles.button}>
-              View Problems.
+              View Problems
             </button>
           </div>
         </div>

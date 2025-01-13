@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -51,23 +52,6 @@ public class ReportService {
                 .body(image);
 
     }
-
-//    public ResponseEntity<?> updateReport(UpdateReport updateReport) {
-//        User user = getCurrentUser();
-//        if (user == null) {
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated");
-//        }
-//        Report report = new Report();
-//        report.setUser(user);
-//        report.setStatus(updateReport.getStatus());
-//        report.setDescription(updateReport.getDescription());
-//        report.setLatitude(updateReport.getLatitude());
-//        report.setLongitude(updateReport.getLongitude());
-//        report.setImageUrl(updateReport.getImageUrl());
-//        reportRepo.save(report);
-//
-//        return ResponseEntity.ok(report);
-//    }
 
     public ResponseEntity<?> updateStatus(Integer id,Status status) {
         User user = getCurrentUser();
@@ -129,7 +113,8 @@ public class ReportService {
     }
 
     public ResponseEntity<?> getAll() {
-        List<Report> reports = reportRepo.findAll();
+        List<Status> statuses = Arrays.asList(Status.PENDING, Status.PROGRESS);
+        List<Report> reports = reportRepo.findByStatuses(statuses);
         return ResponseEntity.ok(reports);
     }
 

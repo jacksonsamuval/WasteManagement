@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { FaMapMarkedAlt, FaEye, FaTrash } from 'react-icons/fa'; // Font Awesome icons
+import { FaMapMarkedAlt, FaEye, FaTrash } from "react-icons/fa";
 
 const ViewAllProblem = () => {
   const [problemData, setProblemData] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [showImage, setShowImage] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -13,7 +13,7 @@ const ViewAllProblem = () => {
         const response = await fetch("http://localhost:8080/report/viewAll", {
           method: "GET",
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -65,6 +65,33 @@ const ViewAllProblem = () => {
       setErrorMessage("No image available.");
     }
   };
+
+  const handleUpdateStatus = async (id, newStatus) => {
+    try {
+      const response = await fetch(`http://localhost:8080/report/updateStatus/${id}/${newStatus}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setSuccessMessage("Status updated successfully!");
+        setProblemData((prevData) =>
+          prevData.map((problem) =>
+            problem.id === id ? { ...problem, status: newStatus } : problem
+          )
+        );
+      } else {
+        const error = await response.json();
+        setErrorMessage(`Error: ${error.message}`);
+      }
+    } catch (error) {
+      setErrorMessage("Failed to update the status. Please try again.");
+      console.error("Error updating status:", error);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <div style={styles.problemDetails}>
@@ -74,8 +101,9 @@ const ViewAllProblem = () => {
         </header>
 
         {errorMessage && <p style={styles.errorMessage}>{errorMessage}</p>}
+        {successMessage && <p style={styles.successMessage}>{successMessage}</p>}
 
-        {problemData.length > 0 ? (
+        {problemData && problemData.length > 0 ? (
           <div style={styles.problemContent}>
             {problemData.map((problem, index) => (
               <div key={index} style={styles.problemCard}>
@@ -86,15 +114,27 @@ const ViewAllProblem = () => {
 
                 <div style={styles.problemInfo}>
                   <div style={styles.problemColumn}>
-                    <p><strong>Description:</strong> {problem.description}</p>
-                    <p><strong>Reported By:</strong> {problem.user.name}</p>
-                    <p><strong>Email:</strong> {problem.user.email}</p>
-                    <p><strong>Mobile No:</strong> {problem.user.mobileNo}</p>
+                    <p>
+                      <strong>Description:</strong> {problem.description}
+                    </p>
+                    <p>
+                      <strong>Reported By:</strong> {problem.user.name}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {problem.user.email}
+                    </p>
+                    <p>
+                      <strong>Mobile No:</strong> {problem.user.mobileNo}
+                    </p>
                   </div>
 
                   <div style={styles.problemColumn}>
-                    <p><strong>Location:</strong> Latitude: {problem.latitude}, Longitude: {problem.longitude}</p>
-                    <p><strong>Created At:</strong> {new Date(problem.createdAt).toLocaleString()}</p>
+                    <p>
+                      <strong>Location:</strong> Latitude: {problem.latitude}, Longitude: {problem.longitude}
+                    </p>
+                    <p>
+                      <strong>Created At:</strong> {new Date(problem.createdAt).toLocaleString()}
+                    </p>
                   </div>
                 </div>
 
@@ -103,27 +143,40 @@ const ViewAllProblem = () => {
                     <FaEye style={styles.icon} />
                     View Image
                   </button>
-                  <button onClick={() => handleViewLocation(problem.latitude, problem.longitude)} style={styles.mapButton}>
+                  <button
+                    onClick={() => handleViewLocation(problem.latitude, problem.longitude)}
+                    style={styles.mapButton}
+                  >
                     <FaMapMarkedAlt style={styles.icon} />
                     View Location
                   </button>
                 </div>
 
-                {showImage && problem.image && (
-                  <div style={styles.imageContainer}>
-                    <h3 style={styles.imageTitle}>Problem Image:</h3>
-                    <img
-                      src={`data:image/jpeg;base64,${problem.image}`}
-                      alt="Problem"
-                      style={styles.image}
-                    />
-                  </div>
-                )}
+                <div style={styles.updateStatusContainer}>
+                  <select
+                    onChange={(e) => handleUpdateStatus(problem.id, e.target.value)}
+                    style={styles.statusDropdown}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>
+                      Select Status
+                    </option>
+                    <option value="PENDING">PENDING</option>
+                    <option value="PROGRESS">PROGRESS</option>
+                    <option value="COMPLETED">COMPLETED</option>
+                  </select>
+                  <button
+                    onClick={() => handleUpdateStatus(problem.id, problem.status)}
+                    style={styles.updateButton}
+                  >
+                    Update Status
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         ) : (
-          <p style={styles.loadingMessage}>Loading...</p>
+          <p style={styles.noReportsMessage}>No Reports Available</p>
         )}
       </div>
     </div>
@@ -174,6 +227,19 @@ const styles = {
     fontSize: "16px",
     fontWeight: "600",
     marginBottom: "20px",
+  },
+  successMessage: {
+    color: "#28a745",
+    fontSize: "16px",
+    fontWeight: "600",
+    marginBottom: "20px",
+  },
+  noReportsMessage: {
+    fontSize: "18px",
+    color: "#555",
+    textAlign: "center",
+    marginTop: "20px",
+    fontWeight: "600",
   },
   problemContent: {
     display: "flex",
@@ -229,7 +295,6 @@ const styles = {
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
-    transition: "background-color 0.3s ease, transform 0.2s ease",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -243,37 +308,32 @@ const styles = {
     border: "none",
     borderRadius: "8px",
     cursor: "pointer",
-    transition: "background-color 0.3s ease, transform 0.2s ease",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     width: "200px",
   },
-
-  imageContainer: {
+  updateStatusContainer: {
     marginTop: "20px",
-    textAlign: "center",
-    maxWidth: "350px",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: "10px",
   },
-  imageTitle: {
-    fontSize: "18px",
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: "10px",
-  },
-  image: {
-    width: "100%",
-    height: "auto",
-    borderRadius: "8px",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-  },
-  icon: {
-    fontSize: "20px",
-    marginRight: "10px",
-  },
-  loadingMessage: {
+  statusDropdown: {
+    padding: "10px",
     fontSize: "16px",
-    color: "#888",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+  },
+  updateButton: {
+    backgroundColor: "#ffc107",
+    color: "#fff",
+    padding: "10px 20px",
+    fontSize: "16px",
+    borderRadius: "8px",
+    border: "none",
+    cursor: "pointer",
   },
 };
 

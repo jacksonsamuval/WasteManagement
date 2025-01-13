@@ -54,8 +54,7 @@ const Navbar = () => {
     localStorage.removeItem("role");
     localStorage.removeItem("imageUrl");
     setUser(null); 
-    window.location.reload(); 
-    navigate("/"); // Redirect to login page
+    navigate("/"); 
   };
 
   const handleProfilePictureClick = () => {

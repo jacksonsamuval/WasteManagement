@@ -23,7 +23,6 @@ const LoginForm = ({ onLoginSuccess }) => {
         localStorage.setItem("username", response.data.username); 
         localStorage.setItem("role", response.data.role); 
         if (onLoginSuccess) onLoginSuccess();
-        navigate("/dashboard"); 
       } else {
         setError("Please Use Admin Login.");
       }

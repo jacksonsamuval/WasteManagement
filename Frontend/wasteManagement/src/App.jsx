@@ -18,6 +18,10 @@ const App = () => {
     window.location.href = "/dashboard";
   };
 
+  const handleAdminLoginSuccess = () => {
+    window.location.href = "/adminDashboard";
+  };
+
   const handleRegisterSuccess = () => {
     alert("Registration successful! Please log in.");
   };
@@ -58,7 +62,7 @@ const App = () => {
           />
           <Route 
             path="/adminLogin"
-            element={<AdminLogin/>}
+            element={<AdminLogin onAdminLoginSuccess={handleAdminLoginSuccess}/>}
           />
           <Route 
             path="/viewAllProblem"

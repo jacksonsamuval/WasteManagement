@@ -58,12 +58,6 @@ public class ReportController {
         return reportService.getAllCompleted(status);
     }
 
-//    @PostMapping("/update")
-//    public ResponseEntity<?> updateReport(@RequestBody UpdateReport updateReport)
-//    {
-//        return reportService.updateReport(updateReport);
-//    }
-
     @PostMapping("/updateStatus/{id}/{status}")
     public ResponseEntity<?> updateStatus(@PathVariable Integer id, @PathVariable Status status)
     {

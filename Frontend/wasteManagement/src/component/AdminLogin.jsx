@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom"; // Import useNavigate to handle redirection
 import "./LoginForm.css";
 
-const AdminLogin = ({ onLoginSuccess }) => {
+const AdminLogin = ({ onAdminLoginSuccess }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,16 +17,11 @@ const AdminLogin = ({ onLoginSuccess }) => {
         password,
       });
 
-      // Store data in localStorage
-      
-
-      // Check if the role is ADMIN and redirect to the admin dashboard
       if (response.data.role === "ADMIN") {
         localStorage.setItem("token", response.data.token || response.data);
         localStorage.setItem("username", response.data.username); 
         localStorage.setItem("role", response.data.role); 
-        if (onLoginSuccess) onLoginSuccess();
-        navigate("/adminDashboard");  // Redirect to Admin Dashboard
+        if (onAdminLoginSuccess) onAdminLoginSuccess();  
       } else {
         setError("You do not have admin privileges.");
       }
