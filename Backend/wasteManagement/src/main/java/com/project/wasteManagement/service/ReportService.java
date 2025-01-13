@@ -114,4 +114,33 @@ public class ReportService {
         reportRepo.deleteById(report.getId());
         return new ResponseEntity<>("Successfully Deleted",HttpStatus.OK);
     }
+
+    public ResponseEntity<?> getCompleted(Status status) {
+        User user = getCurrentUser();
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is not authenticated");
+        }
+        List<Report> report = reportRepo.findByStatusAndUser(status,user);
+        if (report.isEmpty())
+        {
+            return new ResponseEntity<>("No reports found for the given status and user", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(report,HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getAll() {
+        List<Report> reports = reportRepo.findAll();
+        return ResponseEntity.ok(reports);
+    }
+
+    public ResponseEntity<?> getAllCompleted(Status status) {
+        try {
+            List<Report> reports = reportRepo.findByStatus(status);
+            return ResponseEntity.ok(reports);
+        }
+        catch (Exception e)
+        {
+            return new ResponseEntity<>("Something Went Wrong",HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

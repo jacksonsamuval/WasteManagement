@@ -67,8 +67,8 @@ public class UserService {
     public ResponseEntity<?> login(LoginDto loginDto) {
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
-
-        AuthResponseDto authResponseDto = new AuthResponseDto(jwtService.generateToken(loginDto.getUsername()),loginDto.getUsername());
+        User user = userRepo.findByUsername(loginDto.getUsername());
+        AuthResponseDto authResponseDto = new AuthResponseDto(jwtService.generateToken(loginDto.getUsername()),loginDto.getUsername(),user.getRole());
         if (authentication.isAuthenticated())
         {
             return new ResponseEntity<>(authResponseDto,HttpStatus.OK);

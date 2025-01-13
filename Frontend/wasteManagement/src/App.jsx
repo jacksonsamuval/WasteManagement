@@ -6,6 +6,12 @@ import RegisterForm from "./component/RegisterForm";
 import Dashboard from "./component/Dashboard";
 import Problem from "./component/Problem"
 import ViewProblem from "./component/ViewProblem";
+import CompletedProblem from "./component/CompletedProblem";
+import AdminDashboard from "./component/AdminDashboard";
+import AdminLogin from "./component/AdminLogin"
+import ViewAllProblem from "./component/ViewAllProblem";
+import ViewAllCompletedProblem from "./component/viewAllCompletedProblem";
+import ViewAllUser from "./component/ViewAllUser";
 
 const App = () => {
   const handleLoginSuccess = () => {
@@ -19,10 +25,11 @@ const App = () => {
   return (
     <Router>
       <div className="app-container">
+        
         <Navbar /> {/* Add Navbar here */}
         <Routes>
           <Route
-            path="/login"
+            path="/"
             element={<LoginForm onLoginSuccess={handleLoginSuccess} />}
           />
           <Route
@@ -34,12 +41,36 @@ const App = () => {
             element={<Dashboard/>}
           />
           <Route
+            path="adminDashboard"
+            element={<AdminDashboard/>}
+          />
+          <Route
             path="/problem"
             element={<Problem/>}
           />
           <Route
             path="/viewProblem"
             element={<ViewProblem/>}
+          />
+          <Route 
+            path="/completedProblem"
+            element={<CompletedProblem/>}
+          />
+          <Route 
+            path="/adminLogin"
+            element={<AdminLogin/>}
+          />
+          <Route 
+            path="/viewAllProblem"
+            element={<ViewAllProblem/>}
+          />
+          <Route 
+            path="/viewAllCompletedProblem"
+            element={<ViewAllCompletedProblem />}
+          />
+          <Route 
+            path="/viewUsers"
+            element={<ViewAllUser />}
           />
         </Routes>
       </div>

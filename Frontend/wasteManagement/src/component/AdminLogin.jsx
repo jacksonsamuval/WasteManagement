@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";  // Import useNavigate for routing
+import { useNavigate } from "react-router-dom"; // Import useNavigate to handle redirection
 import "./LoginForm.css";
 
-const LoginForm = ({ onLoginSuccess }) => {
+const AdminLogin = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();  // Initialize useNavigate hook
+  const navigate = useNavigate(); // Initialize useNavigate hook for redirection
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -17,15 +17,18 @@ const LoginForm = ({ onLoginSuccess }) => {
         password,
       });
 
+      // Store data in localStorage
+      
 
-      if (response.data.role === "USER") {
+      // Check if the role is ADMIN and redirect to the admin dashboard
+      if (response.data.role === "ADMIN") {
         localStorage.setItem("token", response.data.token || response.data);
         localStorage.setItem("username", response.data.username); 
         localStorage.setItem("role", response.data.role); 
         if (onLoginSuccess) onLoginSuccess();
-        navigate("/dashboard"); 
+        navigate("/adminDashboard");  // Redirect to Admin Dashboard
       } else {
-        setError("Please Use Admin Login.");
+        setError("You do not have admin privileges.");
       }
     } catch (error) {
       setError("Login failed. Please check your credentials.");
@@ -41,7 +44,7 @@ const LoginForm = ({ onLoginSuccess }) => {
             <img src="#" alt="Logo" className="logo" />
           </div>
 
-          <h2>Welcome Back</h2>
+          <h2>Admin Login</h2>
           <p className="subheading">Please log in to continue</p>
 
           {error && <div className="error-message">{error}</div>}
@@ -78,7 +81,7 @@ const LoginForm = ({ onLoginSuccess }) => {
             </p>
             <br/>
             <p>
-              Admin Login?  <a href="/adminLogin">Admin</a>
+              Back to User Login?  <a href="/">Login</a>
             </p>
           </div>
         </form>
@@ -87,4 +90,4 @@ const LoginForm = ({ onLoginSuccess }) => {
   );
 };
 
-export default LoginForm;
+export default AdminLogin;

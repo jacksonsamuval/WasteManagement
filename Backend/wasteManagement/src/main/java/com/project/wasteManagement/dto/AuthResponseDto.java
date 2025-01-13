@@ -3,6 +3,15 @@ package com.project.wasteManagement.dto;
 public class AuthResponseDto {
     private String token;
     private String username;
+    private String role;
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
 
     public String getToken() {
         return token;
@@ -20,8 +29,9 @@ public class AuthResponseDto {
         this.username = username;
     }
 
-    public AuthResponseDto(String token, String username) {
+    public AuthResponseDto(String token, String username, String role) {
         this.token = token;
         this.username = username;
+        this.role = role;
     }
 }

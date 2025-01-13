@@ -37,6 +37,27 @@ public class ReportController {
         return reportService.deleteById(id);
     }
 
+    @GetMapping("/getCompleted/{status}")
+    public ResponseEntity<?> getCompleted(@PathVariable Status status)
+    {
+        if(status == Status.COMPLETED) {
+            return reportService.getCompleted(status);
+        }
+        return ResponseEntity.ok("Something went wrong");
+    }
+
+    @GetMapping("/viewAll")
+    public ResponseEntity<?> viewAll()
+    {
+        return reportService.getAll();
+    }
+
+    @GetMapping("getAllCompleted/{status}")
+    public ResponseEntity<?> getAllCompleted(@PathVariable Status status)
+    {
+        return reportService.getAllCompleted(status);
+    }
+
 //    @PostMapping("/update")
 //    public ResponseEntity<?> updateReport(@RequestBody UpdateReport updateReport)
 //    {
