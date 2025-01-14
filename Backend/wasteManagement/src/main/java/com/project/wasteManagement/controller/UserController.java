@@ -51,9 +51,14 @@ public class UserController {
     }
 
     @PostMapping("register")
-    public ResponseEntity<?> addUser(@RequestBody User user)
+    public ResponseEntity<?> addUser(@RequestParam String name,
+                                     @RequestParam String username,
+                                     @RequestParam String email,
+                                     @RequestParam String password,
+                                     @RequestParam String mobileNo,
+                                     @RequestParam(required = false) MultipartFile file)
     {
-        return userService.addUser(user);
+        return userService.addUser(name,username,email,password,mobileNo,file);
     }
 
     @GetMapping("getCurrentUser")
@@ -72,6 +77,13 @@ public class UserController {
     public ResponseEntity<?> profilePicture(@RequestPart MultipartFile file) throws IOException {
         return userService.uploadPicture(file);
     }
+
+    @GetMapping("getProfilePicture")
+    public ResponseEntity<?> getProfile()
+    {
+        return userService.getProfilePicture();
+    }
+
     //admin
     @GetMapping("/getAllUser")
     public ResponseEntity<?> getAllUser()

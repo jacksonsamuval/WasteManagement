@@ -27,7 +27,6 @@ public class Report {
 
     public Report(){}
 
-
     public String getImageType() {
         return imageType;
     }

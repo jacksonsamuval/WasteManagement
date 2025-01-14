@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaPlus } from "react-icons/fa";
-import axios from "axios";
+import { FaArrowLeft } from "react-icons/fa";
 import "./Navbar.css";
-
-const defaultImageUrl = "https://via.placeholder.com/150"; // Dummy profile image URL
 
 const Navbar = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -12,10 +9,10 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch user data from localStorage or API
+    // Fetch user data from localStorage
     const username = localStorage.getItem("username");
     const role = localStorage.getItem("role");
-    const imageUrl = localStorage.getItem("imageUrl");
+    const imageUrl = localStorage.getItem("image");
 
     if (username && role) {
       setUser({ username, role, imageUrl });
@@ -25,7 +22,7 @@ const Navbar = () => {
     const handleStorageChange = () => {
       const username = localStorage.getItem("username");
       const role = localStorage.getItem("role");
-      const imageUrl = localStorage.getItem("imageUrl");
+      const imageUrl = localStorage.getItem("image");
 
       if (username && role) {
         setUser({ username, role, imageUrl });
@@ -34,14 +31,12 @@ const Navbar = () => {
       }
     };
 
-    // Attach storage event listener to update state when localStorage changes
     window.addEventListener("storage", handleStorageChange);
 
-    // Cleanup listener on component unmount
     return () => {
       window.removeEventListener("storage", handleStorageChange);
     };
-  }, []); // Run only once on component mount
+  }, []); 
 
   const toggleMobileMenu = () => {
     setIsMobile(!isMobile);
@@ -52,42 +47,9 @@ const Navbar = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     localStorage.removeItem("role");
-    localStorage.removeItem("imageUrl");
-    setUser(null); 
-    navigate("/"); 
-  };
-
-  const handleProfilePictureClick = () => {
-    document.getElementById("profile-pic-input").click();
-  };
-
-  const handleFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      try {
-        const response = await axios.post(
-          "http://localhost:8080/user/uploadProfilePicture", // Replace with your API endpoint
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-
-        const imageUrl = response.data.imageUrl;
-        localStorage.setItem("imageUrl", imageUrl); // Update localStorage with the new image URL
-        setUser({ ...user, imageUrl }); // Update the user state with the new image URL
-        window.location.reload(); // Refresh the page to reflect the new profile picture
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Failed to upload image. Please try again.");
-      }
-    }
+    localStorage.removeItem("image");
+    setUser(null);
+    navigate("/");
   };
 
   return (
@@ -108,21 +70,23 @@ const Navbar = () => {
           {user ? (
             <>
               <li className="user-info">
-                <div className="profile-container" onClick={handleProfilePictureClick}>
-                  <img
-                    src={user.imageUrl || defaultImageUrl}
-                    alt={user.username || "Default Avatar"}
-                    className="user-avatar"
-                  />
-                  {user.imageUrl ? null : (
-                    <div className="add-avatar-text">
-                      <FaPlus size={24} color="#005bb5" />
-                      Add Profile Picture
-                    </div>
+                {/* <div className="profile-container">
+                  {user.imageUrl ? (
+                    <img
+                      src={user.imageUrl}
+                      alt={user.username || "Default Avatar"}
+                      className="user-avatar"
+                    />
+                  ) : (
+                    <div className="default-avatar">Default</div>
                   )}
-                </div>
+                </div> */}
                 <span>
-                  Welcome, {user.role === "ADMIN" ? `Admin ${user.username}` : user.username}!
+                  Welcome,{" "}
+                  {user.role === "ADMIN"
+                    ? `Admin ${user.username}`
+                    : user.username}
+                  !
                 </span>
               </li>
               <li>
@@ -153,14 +117,6 @@ const Navbar = () => {
           <div className="bar"></div>
         </div>
       </div>
-
-      <input
-        id="profile-pic-input"
-        type="file"
-        accept="image/*"
-        style={{ display: "none" }}
-        onChange={handleFileChange}
-      />
     </nav>
   );
 };

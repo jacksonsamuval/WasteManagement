@@ -23,7 +23,8 @@ const App = () => {
   };
 
   const handleRegisterSuccess = () => {
-    alert("Registration successful! Please log in.");
+    alert("Registration successful! Please Login.");
+    window.location.href = "/";
   };
 
   return (
@@ -40,6 +41,7 @@ const App = () => {
             path="/register"
             element={<RegisterForm onRegisterSuccess={handleRegisterSuccess} />}
           />
+
           <Route
             path="/dashboard"
             element={<Dashboard/>}
