@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaViacoin } from "react-icons/fa";
 import "./Navbar.css";
-
+import { FaV } from "react-icons/fa6";
+import { FaHome } from "react-icons/fa";
 const Navbar = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [user, setUser] = useState(null);
@@ -62,7 +63,7 @@ const Navbar = () => {
             </button>
           )}
           <div className="navbar-logo">
-            <h1>WS</h1>
+            <img src="logo-black.png" alt="logo" style={{height:50}}/>
           </div>
         </div>
 
@@ -90,6 +91,12 @@ const Navbar = () => {
                 </span>
               </li>
               <li>
+                <a href="/">
+                  <FaHome size={24} color="#000000" />
+                </a>
+              </li>
+
+              <li>
                 <button className="nav-link" onClick={handleLogout}>
                   Logout
                 </button>
@@ -98,13 +105,18 @@ const Navbar = () => {
           ) : (
             <>
               <li>
-                <Link to="/" className="nav-link">
+                <Link to="/login" className="nav-link">
                   Login
                 </Link>
               </li>
               <li>
                 <Link to="/register" className="nav-link">
                   Register
+                </Link>
+              </li>
+              <li>
+                <Link to="/" className="nav-link">
+                  Home
                 </Link>
               </li>
             </>

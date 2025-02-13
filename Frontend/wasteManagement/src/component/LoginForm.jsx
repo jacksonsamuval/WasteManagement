@@ -37,7 +37,7 @@ const LoginForm = ({ onLoginSuccess }) => {
       <div className="login-container">
         <form onSubmit={handleLogin} className="login-form">
           <div className="logo-container">
-            <img src="#" alt="Logo" className="logo" />
+            <img src="logo.png" alt="logo" style={{height:65, borderRadius: 10}}/>
           </div>
 
           <h2>Welcome Back</h2>

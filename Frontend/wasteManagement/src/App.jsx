@@ -12,6 +12,7 @@ import AdminLogin from "./component/AdminLogin"
 import ViewAllProblem from "./component/ViewAllProblem";
 import ViewAllCompletedProblem from "./component/viewAllCompletedProblem";
 import ViewAllUser from "./component/ViewAllUser";
+import HomePage from "./pages/HomePage";
 
 const App = () => {
   const handleLoginSuccess = () => {
@@ -24,19 +25,25 @@ const App = () => {
 
   const handleRegisterSuccess = () => {
     alert("Registration successful! Please Login.");
-    window.location.href = "/";
+    window.location.href = "/login";
   };
 
   return (
     <Router>
       <div className="app-container">
         
-        <Navbar /> {/* Add Navbar here */}
+        <Navbar/> 
         <Routes>
           <Route
-            path="/"
+            path="/login"
             element={<LoginForm onLoginSuccess={handleLoginSuccess} />}
           />
+
+          <Route
+            path="/"
+            element={<HomePage />}
+          />
+
           <Route
             path="/register"
             element={<RegisterForm onRegisterSuccess={handleRegisterSuccess} />}

@@ -56,11 +56,11 @@ const RegisterForm = ({ onRegisterSuccess }) => {
   };
 
   return (
-    <div className="register-wrapper">
-      <div className="register-container">
+    <div className="register-wrapper" >
+      <div className="register-container" style={{marginTop:100}}>
         <form onSubmit={handleRegister} className="register-form">
           <div className="logo-container">
-            <img src="#" alt="Logo" className="logo" />
+          <img src="logo.png" alt="logo" style={{height:65, borderRadius: 10}}/>
           </div>
 
           <h2>Create an Account</h2>
