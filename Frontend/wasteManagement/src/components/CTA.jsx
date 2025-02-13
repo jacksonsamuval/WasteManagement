@@ -9,9 +9,9 @@ const CTA = () => {
                 <Typography variant="body1" mt={2}>
                     Report waste issues today and help keep your city clean.
                 </Typography>
-                <Button variant="contained" sx={{ mt: 2, background: "white", color: "#2E7D32" }}>
+                {/* <Button variant="contained" sx={{ mt: 2, background: "white", color: "#2E7D32" }}>
                     Submit a Complaint
-                </Button>
+                </Button> */}
             </Box>
         </Container>
     );
